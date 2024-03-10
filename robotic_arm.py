@@ -91,12 +91,23 @@ class RoboticArm:
         return final_state
 
 
+    def generate_next_nodes(self, node):
+        next_nodes = []
+
+        possibilities = [self._left, self._right]
+        for possibility in possibilities:
+            next_nodes.extend(possibility(node))
+
+        random.shuffle(next_nodes)
+
+        return next_nodes
+
+
     def _left(self, node):
         next_states = []
 
         current_state = node.state
         position = current_state[self.arm_current_position]
-        if (current_state[self.arm_previous_position] == 0): position += 1 # if it is the first movement it can get the box below the arm
 
         for next_position in range(1, position):
             distance = position - next_position
@@ -105,6 +116,7 @@ class RoboticArm:
                 next_states.append(Node(next_state, current_state, ("⬅" * distance)))
 
         return next_states
+
     
 
     def _right(self, node):
@@ -112,6 +124,7 @@ class RoboticArm:
 
         current_state = node.state
         position = current_state[self.arm_current_position]
+        if (current_state[self.arm_previous_position] != 0): position += 1 # if it is not the first movement it can't get the box below the arm
 
         for next_position in range(position, (self.number_of_positons + 1)):
             distance = next_position - position
@@ -130,7 +143,7 @@ class RoboticArm:
             next_stack_space = 0
             while (next_stack_space != self.boxes_per_position):
                 if (new_state[index - next_stack_space] == 0):
-                    
+
                     if (next_stack_space != 0 and new_state[index - next_stack_space + 1] < new_state[self.arm_picked_box]):
                         return None
                     
