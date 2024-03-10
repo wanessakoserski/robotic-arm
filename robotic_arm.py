@@ -69,7 +69,6 @@ class RoboticArm:
     def check_boxes(self, boxes):
         # the test considers that the number of boxes is divisible by 3 (that is, in the end there will always be 3 boxes stacked) 
         # and the top box must be the same weight or less heavy than the bottom one
-        print(boxes)
         if (0 in boxes):
             return False
         elif (boxes[0] > boxes[1]):
@@ -126,13 +125,15 @@ class RoboticArm:
     def relocate_boxes(self, position, state):
         new_state = np.copy(state)
         index = (position * self.boxes_per_position) + self.space_arm_info - 1 
-        if (position == 7):
-            print(">> " + str(index))
 
         if (new_state[self.arm_picked_box] != 0):
             next_stack_space = 0
             while (next_stack_space != self.boxes_per_position):
                 if (new_state[index - next_stack_space] == 0):
+                    
+                    if (next_stack_space != 0 and new_state[index - next_stack_space + 1] < new_state[self.arm_picked_box]):
+                        return None
+                    
                     new_state[index - next_stack_space] = new_state[self.arm_picked_box]
                     new_state[self.arm_picked_box] = 0
                     next_stack_space == self.boxes_per_position
