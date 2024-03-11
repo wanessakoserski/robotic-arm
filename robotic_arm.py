@@ -85,7 +85,10 @@ class RoboticArm:
         for next in range(self.boxes_per_position):
             for space in range(self.space_arm_info, self.list_size):
                 if ((space - self.space_arm_info - next) % self.boxes_per_position == 0):
-                    final_state += str(state[space]) + "\t"
+                    if ((space - next) == (state[self.arm_current_position] * self.boxes_per_position)):
+                        final_state += "[" + str(state[space]) + "]" + "\t"
+                    else:
+                        final_state += str(state[space]) + "\t"
             final_state += "\n"
         
 

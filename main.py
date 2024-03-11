@@ -24,6 +24,7 @@ def test_problem(problem, algorithm):
     print("Next states: ")
     for node in nodes:
         print("Next node cost: " + str(node.cost))
+        print("Next node movements: " + str(node.edge))
         print(problem.show(node))
 
 
@@ -38,12 +39,3 @@ if __name__ == "__main__":
 
     print("\n\n>> Robotic arm problem using A* <<\n")
     test_problem(problem, a_star)
-
-    
-        
-
-    
-
-    
-
-    
