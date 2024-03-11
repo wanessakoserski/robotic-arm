@@ -12,11 +12,11 @@ class RoboticArm:
         self.arm_current_position = 0
         self.arm_previous_position = 1
         self.arm_picked_box = 2
-        # self.arm_last_movements = 3
+        # self.arm_last_movement = 3
 
         self.boxes_per_position = 3
         self.number_of_boxes = number_of_boxes
-        self.number_of_positons = number_of_positions
+        self.number_of_positions = number_of_positions
         self.list_size = (number_of_positions * self.boxes_per_position) + self.space_arm_info
 
         self.boxes = self.generate_random_boxes(number_of_boxes)
@@ -53,7 +53,8 @@ class RoboticArm:
         expected_result = int(self.number_of_boxes / self.boxes_per_position)
         current_result = 0
 
-        for i in range(expected_result):
+        # for i in range(expected_result):
+        for i in range(self.number_of_positions):
             index = (i * self.boxes_per_position) + self.space_arm_info
 
             current_positions = []
@@ -89,7 +90,7 @@ class RoboticArm:
                 final_state += "\n"
 
         return final_state
-
+    
 
     def generate_next_nodes(self, node):
         next_nodes = []
@@ -113,10 +114,9 @@ class RoboticArm:
             distance = position - next_position
             next_state = self.relocate_boxes(next_position, current_state)
             if (next_state is not None):
-                next_states.append(Node(next_state, current_state, ("⬅" * distance)))
+                next_states.append(Node(next_state, node, ((" ⬅ " * distance) + "  get box [ " + str(next_state[self.arm_picked_box]) + " ]")))                
 
         return next_states
-
     
 
     def _right(self, node):
@@ -124,14 +124,15 @@ class RoboticArm:
 
         current_state = node.state
         position = current_state[self.arm_current_position]
+        current_position = position
         if (current_state[self.arm_previous_position] != 0): position += 1 # if it is not the first movement it can't get the box below the arm
 
-        for next_position in range(position, (self.number_of_positons + 1)):
-            distance = next_position - position
+        for next_position in range(position, (self.number_of_positions + 1)):
+            distance = next_position - current_position
             next_state = self.relocate_boxes(next_position, current_state)
             if (next_state is not None):
-                next_states.append(Node(next_state, current_state, ("⬅" * distance)))
-
+                next_states.append(Node(next_state, node, ((" ➡ " * distance) + "  get box [ " + str(next_state[self.arm_picked_box]) + " ]")))
+ 
         return next_states
             
             
@@ -149,23 +150,48 @@ class RoboticArm:
                     
                     new_state[index - next_stack_space] = new_state[self.arm_picked_box]
                     new_state[self.arm_picked_box] = 0
-                    next_stack_space == self.boxes_per_position
+
+                    new_state[self.arm_previous_position] = new_state[self.arm_current_position]
+                    new_state[self.arm_current_position] = position
+                    
 
                     return new_state
                 else:
                     next_stack_space += 1
         else:
-            next_stack_space = 0
-            while (next_stack_space != self.boxes_per_position):
+            next_stack_space = self.boxes_per_position - 1
+            while (next_stack_space != -1):
                 if (new_state[index - next_stack_space] != 0):
                     new_state[self.arm_picked_box] = new_state[index - next_stack_space]
                     new_state[index - next_stack_space] = 0
-                    next_stack_space == self.boxes_per_position
+
+                    new_state[self.arm_previous_position] = new_state[self.arm_current_position]
+                    new_state[self.arm_current_position] = position
 
                     return new_state
                 else:
-                    next_stack_space += 1
+                    next_stack_space -= 1
         
         return None
             
-            
+    
+    def cost(self, node, destination_node):
+        distance = abs(destination_node.state[self.arm_current_position] - destination_node.state[self.arm_previous_position])
+        box_weight = node.state[self.arm_picked_box]
+
+        if (distance == 1):
+            result = 1 + (box_weight / 10)
+        else:
+            result = (distance * 0.75) + (box_weight / 10)
+
+        return result
+    
+
+    def heuristic(self, node):
+        sum = 0
+
+        for box in range(self.space_arm_info, (self.number_of_boxes + self.space_arm_info)):
+            if (node.state[box] != 0):
+                sum += 1
+        
+        return sum
