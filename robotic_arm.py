@@ -1,4 +1,3 @@
-import sys
 import random
 import numpy as np
 
@@ -12,7 +11,6 @@ class RoboticArm:
         self.arm_current_position = 0
         self.arm_previous_position = 1
         self.arm_picked_box = 2
-        # self.arm_last_movement = 3
 
         self.boxes_per_position = 3
         self.number_of_boxes = number_of_boxes
@@ -53,8 +51,8 @@ class RoboticArm:
         expected_result = int(self.number_of_boxes / self.boxes_per_position)
         current_result = 0
 
-        # for i in range(expected_result):
-        for i in range(self.number_of_positions):
+        for i in range(expected_result):
+        #for i in range(self.number_of_positions):
             index = (i * self.boxes_per_position) + self.space_arm_info
 
             current_positions = []
@@ -84,9 +82,9 @@ class RoboticArm:
         state = node.state
 
         final_state = ""
-        for next in range(3):
+        for next in range(self.boxes_per_position):
             for space in range(self.space_arm_info, self.list_size):
-                if ((space - next) % self.boxes_per_position == 0):
+                if ((space - self.space_arm_info - next) % self.boxes_per_position == 0):
                     final_state += str(state[space]) + "\t"
             final_state += "\n"
         
