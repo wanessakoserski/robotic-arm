@@ -1,8 +1,8 @@
 def node_path(node):
-    path = [node.state]
+    path = [node]
 
     while node.parent_node is not None:
-        path.append(node.state)
+        path.append(node)
         node = node.parent_node
     
     path.reverse()

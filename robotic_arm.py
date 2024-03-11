@@ -84,10 +84,12 @@ class RoboticArm:
         state = node.state
 
         final_state = ""
-        for i in range(self.space_arm_info, self.list_size):
-            final_state += str(state[i]) + " " 
-            if ((i - (self.space_arm_info - 1)) % 3 == 0):
-                final_state += "\n"
+        for next in range(3):
+            for space in range(self.space_arm_info, self.list_size):
+                if ((space - next) % self.boxes_per_position == 0):
+                    final_state += str(state[space]) + "\t"
+            final_state += "\n"
+        
 
         return final_state
     
